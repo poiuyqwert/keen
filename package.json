@@ -1,0 +1,29 @@
+{
+  "name": "keen",
+  "version": "0.1.0",
+  "description": "CLI handling module inspire by commander",
+  "main": "keen.js",
+  "scripts": {
+    "test": "./node_modules/.bin/jasmine-node --verbose tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/poiuyqwert/keen.git"
+  },
+  "keywords": [
+    "nodejs",
+    "cli",
+    "keen",
+    "commander",
+    "argparse"
+  ],
+  "author": "poiuy_qwert",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/poiuyqwert/keen/issues"
+  },
+  "homepage": "https://github.com/poiuyqwert/keen#readme",
+  "devDependencies": {
+    "jasmine-node": "^1.14.5"
+  }
+}
