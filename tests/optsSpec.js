@@ -60,7 +60,7 @@ describe("Options", function() {
 		});
 	});
 
-	describe('when configured', function() {
+	describe('when configured to passthrough unknowns', function() {
 		beforeEach(function() {
 			program
 				.config(keen.config.enforceOptionParse, false);

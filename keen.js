@@ -259,7 +259,8 @@ var Command = function(parent) {
 	this._config = {
 		allowUnknownOptions: false,
 		enforceOptionParse: true,
-		displayHelpOnError: true
+		displayHelpOnError: true,
+		parseReturns: keen.parseReturns.default
 	};
 
 	this.opts = {};
@@ -487,10 +488,14 @@ Command.prototype.doParse = function(argv) {
 	if (this._commands.length && !this._action) {
 		throw new KeenError("No command chosen");
 	}
+	var result;
 	if (this._action) {
-		this._action.apply(this, this.args);
+		result = this._action.apply(this, this.args);
 	}
-	return this.args;
+	if (this._config.parseReturns === keen.parseReturns.alwaysArgs || (this._config.parseReturns === keen.parseReturns.default && typeof result === 'undefined')) {
+		result = this.args;
+	}
+	return result;
 };
 Command.prototype.parse = function(args) {
 	this.args = [];
@@ -574,14 +579,14 @@ var keen = {
 	},
 	parse: {
 		int: function(str) {
-			var val = parseInt(str);
+			var val = parseInt(str); // Need better int parsing/validation?
 			if (isNaN(val)) {
 				throw new KeenError("Value '%s' is not an integer", str);
 			}
 			return val;
 		},
 		float: function(str) {
-			var val = parseFloat(str);
+			var val = parseFloat(str); // Need better float parsing/validation?
 			if (isNaN(val)) {
 				throw new KeenError("Value '%s' is not a float", str);
 			}
@@ -594,6 +599,12 @@ var keen = {
 		unknownOptionHandler: 'unknownOptionHandler', // Allows you to throw errors, provide an argument definition, description, and/or options for unknown options
 		enforceOptionParse: 'enforceOptionParse', // If allowUnknownOptions is unset, disabling this will passthrough unknown options as arguments 
 		displayHelpOnError: 'displayHelpOnError', // Display help if a KeenError is thrown
+		parseReturns: 'parseReturns', // Determine what is returned from the parse function (valid settings are in keen.parseReturns)
+	},
+	parseReturns: {
+		default: 'default', // Return args if action returns undefined, otherwise return action result
+		alwaysArgs: 'alwaysArgs', // Always returns args, ignores action result
+		alwaysActionResult: 'alwaysActionResult', // Always return action result, even if undefined
 	}
 };
 

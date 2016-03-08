@@ -75,11 +75,53 @@ describe("Arguments", function() {
 		expect(args).toEqual(['a','b',['c','d']]);
 	});
 
-	it('should be returned', function() {
+	it('should be returned by default', function() {
 		program
 			.arguments('<a> [b] [c...]');
 
 		var args = program.parse(['a','b','c','d']);
 		expect(args).toEqual(['a','b',['c','d']]);
+	});
+
+	it('should not be returned if action result is not undefined', function() {
+		program
+			.arguments('<a>')
+			.action(function(a) {
+				return 'b';
+			});
+
+		var args = program.parse(['a']);
+		expect(args).toEqual('b');
+	});
+
+	describe('when configured to always return', function() {
+		beforeEach(function() {
+			program
+				.config(keen.config.parseReturns, keen.parseReturns.alwaysArgs);
+		});
+		it('should always return args even if action results are not undefined', function() {
+			program
+				.arguments('<a>')
+				.action(function(a) {
+					return 'b';
+				});
+
+			var args = program.parse(['a']);
+			expect(args).toEqual(['a']);
+		});
+	});
+
+	describe('when configured to always return action results', function() {
+		beforeEach(function() {
+			program
+				.config(keen.config.parseReturns, keen.parseReturns.alwaysActionResult);
+		});
+		it('should always return action results even if undefined', function() {
+			program
+				.arguments('<a>');
+
+			var result = program.parse(['a']);
+			expect(result).toBeUndefined();
+		});
 	});
 });
