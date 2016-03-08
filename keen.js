@@ -435,7 +435,7 @@ Command.prototype.doParse = function(argv) {
 	argv = argv || process.argv.slice(2);
 	var a = 0;
 	var checkCmd = 0;
-	if (keen.config.alwaysCallAction && this._action) {
+	if (this._config.alwaysCallAction && this._action) {
 		checkCmd = this._arguments.length;
 	}
 	while (argv.length) {
@@ -445,7 +445,7 @@ Command.prototype.doParse = function(argv) {
 				return;
 			}
 		} else if (checkCmd === 0 && arg in this._commandsMap) {
-			if (keen.config.alwaysCallAction && this._action) {
+			if (this._config.alwaysCallAction && this._action) {
 				this._action.apply(this, this.args);
 			}
 			var cmd = this._commandsMap[arg];
