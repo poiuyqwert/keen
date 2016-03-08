@@ -141,14 +141,14 @@ var DefaultLogger = {
 
 
 var Argument = function(definition, parser) {
-	var match = definition.match(/<([a-zA-Z][a-zA-Z0-9]*)(\.\.\.)?>/);
+	var match = definition.match(/<([a-zA-Z_][a-zA-Z0-9\-_]*)(\.\.\.)?>/);
 	if (match) {
 		this.literal = false;
 		this.required = true;
 		this.name = match[1];
 		this.variadic = !!match[2];
 	} else {
-		match = definition.match(/\[([a-zA-Z][a-zA-Z0-9]*)(\.\.\.)?\]/);
+		match = definition.match(/\[([a-zA-Z_][a-zA-Z0-9\-_]*)(\.\.\.)?\]/);
 		if (match) {
 			this.literal = false;
 			this.required = false;
