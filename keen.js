@@ -263,6 +263,7 @@ var Command = function(parent) {
 		parseReturns: keen.parseReturns.default
 	};
 
+	this.params = {};
 	this.opts = {};
 	this.unkOpts = {};
 	this.args = [];
@@ -440,6 +441,9 @@ Command.prototype.doParse = function(argv) {
 			}
 		} else if (arg in this._commandsMap) {
 			return this._commandsMap[arg].parse(argv);
+			var cmd = this._commandsMap[arg];
+			cmd.parameters(this.params);
+			return cmd.parse(argv);
 		} else {
 			if (arg[0] === '-') {
 				if (this._config.allowUnknownOptions) {
@@ -565,6 +569,14 @@ Command.prototype.commandHelp = function(name) {
 			}
 			command._logger.out(command.help());
 		});
+	return this;
+};
+Command.prototype.parameters = function(params) {
+	for (var key in params) {
+		if (params.hasOwnProperty(key)) {
+			this.params[key] = params[key];
+		}
+	}
 	return this;
 };
 

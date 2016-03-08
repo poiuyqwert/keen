@@ -54,4 +54,31 @@ describe("Commands", function() {
 
 		expect(action).toHaveBeenCalled();
 	});
+
+	it('should allow parameters', function() {
+		var params;
+
+		program
+			.parameters({a: 'b'})
+			.action(function() {
+				params = this.params;
+			});
+		program.parse([]);
+
+		expect(params).toEqual({a: 'b'});
+	});
+
+	it('should forward parameters to sub-commands', function() {
+		var params;
+
+		program
+			.parameters({a: 'b'})
+			.command('c')
+			.action(function() {
+				params = this.params;
+			});
+		program.parse(['c']);
+
+		expect(params).toEqual({a: 'b'});
+	});
 });
