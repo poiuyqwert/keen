@@ -1,10 +1,15 @@
 var keen = require('../keen');
 
 describe("Arguments", function() {
+	var program;
+	beforeEach(function() {
+		program = keen.program();
+	});
+
 	it('should be accepted', function() {
 		var action = createSpy('action');
 
-		var program = keen.program()
+		program
 			.arguments('<a>')
 			.action(action);
 		program.parse(['a']);
@@ -15,7 +20,7 @@ describe("Arguments", function() {
 	it('should allow conditionals', function() {
 		var action = createSpy('action');
 
-		var program = keen.program()
+		program
 			.arguments('[a]')
 			.action(action);
 		program.parse([]);
@@ -26,7 +31,7 @@ describe("Arguments", function() {
 	it('should allow variadic', function() {
 		var action = createSpy('action');
 
-		var program = keen.program()
+		program
 			.arguments('<a...>')
 			.action(action);
 		program.parse(['a','b']);
@@ -37,7 +42,7 @@ describe("Arguments", function() {
 	it('should allow combinations', function() {
 		var action = createSpy('action');
 
-		var program = keen.program()
+		program
 			.arguments('<a> [b] [c...]')
 			.action(action);
 		program.parse(['a','b','c','d']);
@@ -45,10 +50,10 @@ describe("Arguments", function() {
 		expect(action).toHaveBeenCalledWith('a', 'b', ['c','d']);
 	});
 
-	it('should allow parsing', function() {
+	it('should allow custom parsers', function() {
 		var action = createSpy('action');
 
-		var program = keen.program()
+		program
 			.arguments('<a>')
 			.argument('a', keen.parse.int)
 			.action(action);
@@ -60,7 +65,7 @@ describe("Arguments", function() {
 	it('should be accessible on `this`', function() {
 		var args;
 
-		var program = keen.program()
+		program
 			.arguments('<a> [b] [c...]')
 			.action(function() {
 				args = this.args;
@@ -71,7 +76,7 @@ describe("Arguments", function() {
 	});
 
 	it('should be returned', function() {
-		var program = keen.program()
+		program
 			.arguments('<a> [b] [c...]');
 
 		var args = program.parse(['a','b','c','d']);

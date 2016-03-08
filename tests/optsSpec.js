@@ -1,53 +1,75 @@
 var keen = require('../keen');
 
 describe("Options", function() {
+	var program;
+	beforeEach(function() {
+		program = keen.program();
+	});
+
 	it('should be accepted', function() {
-		var program = keen.program()
+		program
 			.option('--opt');
 		program.parse(['--opt']);
 
 		expect(program.opts.opt).toEqual(true);
 	});
 
-	it('should allow an argument', function() {
-		var program = keen.program()
+	it('should allow a required argument', function() {
+		program
 			.option('--opt <a>');
 		program.parse(['--opt','a']);
 
 		expect(program.opts.opt).toEqual('a');
 	});
 
-	it('should allow an option argument', function() {
-		var program = keen.program()
+	it('should allow an optional argument', function() {
+		program
 			.option('--opt [a]');
 		program.parse(['--opt']);
 
 		expect(program.opts.opt).toEqual(true);
 	});
 
-	it('should allow custom default values', function() {
-		var program = keen.program()
-			.option('--opt [a]', '', {defaultOn: 'a'});
+	it('should allow custom defaultOn values', function() {
+		program
+			.option('--opt', '', {defaultOn: 'a'});
 		program.parse(['--opt']);
 
 		expect(program.opts.opt).toEqual('a');
 	});
 
-	describe('when configured', function() {
-		it('should allow unknowns', function() {
-			var program = keen.program()
+	describe('when configured to allow unknowns', function() {
+		beforeEach(function() {
+			program
 				.config(keen.config.allowUnknownOptions, true);
+		});
+		it('should allow unknowns', function() {
 			program.parse(['--opt']);
 
 			expect(program.unkOpts.opt).toEqual(true);
 		});
 
+		it('should allow arguments for unknowns', function() {
+			program
+				.config(keen.config.unknownOptionHandler, function(name) {
+					return {argument: '[value]'};
+				});
+			program.parse(['--opt','a']);
+
+			expect(program.unkOpts.opt).toEqual('a');
+		});
+	});
+
+	describe('when configured', function() {
+		beforeEach(function() {
+			program
+				.config(keen.config.enforceOptionParse, false);
+		});
 		it('should passthrough unknowns', function() {
 			var action = createSpy('action');
 
-			var program = keen.program()
+			program
 				.arguments('<unkOpt>')
-				.config(keen.config.enforceOptionParse, false)
 				.action(action);
 			program.parse(['--opt']);
 
@@ -59,7 +81,7 @@ describe("Options", function() {
 		var opts;
 		var unkOpts;
 
-		var program = keen.program()
+		program
 			.option('--opt')
 			.config(keen.config.allowUnknownOptions, true)
 			.action(function() {
