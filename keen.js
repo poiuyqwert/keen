@@ -373,7 +373,7 @@ Command.prototype.command = function(definition, description, setup) {
 	return command;
 };
 Command.prototype.setup = function(setup) {
-	var args = Array.prototype.slice.call(arguments).slice(1);
+	var args = Array.prototype.slice.call(arguments, 1);
 	args.unshift(this);
 	setup.apply(undefined, args);
 	return this;
@@ -493,6 +493,10 @@ Command.prototype.doParse = function(argv) {
 	return this.args;
 };
 Command.prototype.parse = function(args) {
+	this.args = [];
+	this.opts = {};
+	this.unkOpts = {};
+
 	try {
 		return this.doParse(args);
 	} catch (error) {
