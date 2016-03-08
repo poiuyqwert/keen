@@ -257,10 +257,11 @@ var Command = function(parent) {
 	this._printer = DefaultPrinter;
 	this._logger = DefaultLogger;
 	this._config = {
-		allowUnknownOptions: false,
-		enforceOptionParse: true,
-		displayHelpOnError: true,
-		parseReturns: keen.parseReturns.default
+		[keen.config.allowUnknownOptions]: false,
+		[keen.config.enforceOptionParse]: true,
+		[keen.config.displayHelpOnError]: true,
+		[keen.config.parseReturns]: keen.parseReturns.default,
+		[keen.config.alwaysCallAction]: false
 	};
 
 	this.params = {};
@@ -433,14 +434,20 @@ Command.prototype.handleOption = function(option, name, argv) {
 Command.prototype.doParse = function(argv) {
 	argv = argv || process.argv.slice(2);
 	var a = 0;
+	var checkCmd = 0;
+	if (keen.config.alwaysCallAction && this._action) {
+		checkCmd = this._arguments.length;
+	}
 	while (argv.length) {
 		var arg = argv.shift();
 		if (arg in this._optionsMap) {
 			if (this.handleOption(this._optionsMap[arg], arg, argv) === keen.BREAK) {
 				return;
 			}
-		} else if (arg in this._commandsMap) {
-			return this._commandsMap[arg].parse(argv);
+		} else if (checkCmd === 0 && arg in this._commandsMap) {
+			if (keen.config.alwaysCallAction && this._action) {
+				this._action.apply(this, this.args);
+			}
 			var cmd = this._commandsMap[arg];
 			cmd.parameters(this.params);
 			return cmd.parse(argv);
@@ -448,7 +455,7 @@ Command.prototype.doParse = function(argv) {
 			if (arg[0] === '-') {
 				if (this._config.allowUnknownOptions) {
 					var definition = arg;
-					var description = 'Unknown Argument';
+					var description = 'Unknown Option';
 					var unkOptions;
 					if (this._config.unknownOptionHandler) {
 						unkOptions = this._config.unknownOptionHandler.call(this, arg.replace(/^-+/,''));
@@ -485,6 +492,7 @@ Command.prototype.doParse = function(argv) {
 				a += 1;
 			}
 		}
+		checkCmd -= 1;
 	}
 	if (this.args.length < this._arguments.length && this._arguments[a].required) {
 		throw new KeenError("Missing required argument '%s'", this._arguments[a].name);
@@ -561,7 +569,7 @@ Command.prototype.optionVersion = function(definition, description) {
 Command.prototype.commandHelp = function(name) {
 	name = name || 'help';
 	var command = this;
-	this.command(name + ' [command]')
+	this.command(name + ' [command]') // Only add [command] argument if there are sub-commands?
 		.description('Output usage operation')
 		.action(function(cmd) {
 			if (typeof cmd !== "undefined" && cmd in command._commandsMap) {
@@ -612,6 +620,7 @@ var keen = {
 		enforceOptionParse: 'enforceOptionParse', // If allowUnknownOptions is unset, disabling this will passthrough unknown options as arguments 
 		displayHelpOnError: 'displayHelpOnError', // Display help if a KeenError is thrown
 		parseReturns: 'parseReturns', // Determine what is returned from the parse function (valid settings are in keen.parseReturns)
+		alwaysCallAction: 'alwaysCallAction', // Determines whether a commands action is called even if there are sub-commands
 	},
 	parseReturns: {
 		default: 'default', // Return args if action returns undefined, otherwise return action result

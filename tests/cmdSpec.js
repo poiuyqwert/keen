@@ -81,4 +81,42 @@ describe("Commands", function() {
 
 		expect(params).toEqual({a: 'b'});
 	});
+
+	describe('when configured to always call action before sub-commands', function() {
+		beforeEach(function() {
+			program
+				.config(keen.config.alwaysCallAction, true);
+		});
+
+		it('should call action before sub-commands', function() {
+			var calls = [];
+
+			program
+				.action(function() {
+					calls.push(1);
+				})
+				.command('a')
+				.action(function() {
+					calls.push(2);
+				});
+			program.parse(['a']);
+
+			expect(calls).toEqual([1,2]);
+		});
+
+		it('should allow arguments before sub-commands', function() {
+			var action1 = createSpy('action1');
+			var action2 = createSpy('action2');
+
+			program
+				.arguments('<a>')
+				.action(action1)
+				.command('b <c>')
+				.action(action2);
+			program.parse(['a','b','c']);
+
+			expect(action1).toHaveBeenCalledWith('a');
+			expect(action2).toHaveBeenCalledWith('c');
+		});
+	});
 });
