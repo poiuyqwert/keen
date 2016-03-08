@@ -315,6 +315,9 @@ Command.prototype.usingOptions = function(options) {
 	return this;
 };
 Command.prototype.arguments = function(definition) {
+	if (this._arguments.length) {
+		throw new Error();
+	}
 	var args = definition.split(/\s+/).map(function(arg) {
 		return new Argument(arg);
 	});
@@ -348,9 +351,6 @@ Command.prototype.argument = function(name, parser) {
 	return this;
 };
 Command.prototype.command = function(definition, description, setup) {
-	if (this._arguments.length) {
-		throw new Error();
-	}
 	var split = definition.split(/ +/);
 	var name = split[0];
 	var args = split.slice(1).join(' ');
