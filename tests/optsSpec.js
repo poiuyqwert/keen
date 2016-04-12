@@ -38,6 +38,15 @@ describe("Options", function() {
 		expect(program.opts.opt).toEqual('a');
 	});
 
+	it('should allow aliases', function() {
+		program
+			.option('-o, --opt');
+		program.parse(['-o']);
+
+		expect(program.opts.o).toEqual(true);
+		expect(program.opts.opt).toEqual(true);
+	});
+
 	describe('when configured to allow unknowns', function() {
 		beforeEach(function() {
 			program

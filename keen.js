@@ -397,7 +397,7 @@ Command.prototype.config = function(configOrName, undefinedOrValue) {
 	}
 	return this;
 };
-Command.prototype.handleOption = function(option, name, argv) {
+Command.prototype.handleOption = function(option, usedName, argv) {
 	var oarg = undefined;
 	var oargError = undefined;
 	if (option.argument && argv.length) {
@@ -417,18 +417,22 @@ Command.prototype.handleOption = function(option, name, argv) {
 			if (oargError) {
 				throw oargError;
 			}
-			throw new KeenError("Missing required argument '%s' for option '%s'", option.argument.name, name);
+			throw new KeenError("Missing required argument '%s' for option '%s'", option.argument.name, usedName);
 		}
 		oarg = option.defaultOn;
 	}
-	name = name.replace(/^-+/,'');
-	if (this._options.indexOf(option) === -1) {
-		this.unkOpts[name] = oarg;
-	} else {
-		this.opts[name] = oarg;
-	}
+	var command = this;
+	var unknownOption = (command._options.indexOf(option) === -1);
+	option.names.forEach(function(name) {
+		name = name.replace(/^--?/,'');
+		if (unknownOption) {
+			command.unkOpts[name] = oarg;
+		} else {
+			command.opts[name] = oarg;
+		}
+	});
 	if (option.handler) {
-		return option.handler(oarg);
+		return option.handler(oarg, usedName);
 	}
 };
 Command.prototype.doParse = function(argv) {
